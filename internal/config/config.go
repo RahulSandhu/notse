@@ -20,7 +20,7 @@ func DefaultConfig() *Config {
 	configDir := filepath.Join(homeDir, ".config", "notse")
 	
 	return &Config{
-		NotesFile:   filepath.Join(configDir, "notes.json"),
+		NotesFile:   filepath.Join(configDir, "notes_history.json"),
 		MaxHistory:  100,
 		ThemeFile:   filepath.Join(configDir, "theme.json"),
 		DefaultTags: []string{},
