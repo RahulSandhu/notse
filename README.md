@@ -3,7 +3,7 @@
 Notse is a terminal-based notes app. It runs as a TUI in your terminal.
 
 <p align="center">
-  <img src="https://drive.google.com/uc?export=view&id=1AU6-PHzJmq-0VNfBBzQ-Igk452P6RLqc" width="600" alt="demo">
+  <img src="images/demo.png" width="600" alt="demo">
 </p>
 
 ## Installation
