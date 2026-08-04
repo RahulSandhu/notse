@@ -2,6 +2,8 @@
 
 Notse is a terminal-based notes app. It runs as a TUI in your terminal.
 
+![demo](images/demo.png)
+
 ## Installation
 
 ### Requirements
@@ -10,7 +12,8 @@ Notse is a terminal-based notes app. It runs as a TUI in your terminal.
 
 ### Pre-built
 
-Download the latest binary from the [releases page](https://github.com/RahulSandhu/notse/releases).
+Download the latest binary from the [releases
+page](https://github.com/RahulSandhu/notse/releases).
 
 ### Build from source
 
@@ -28,19 +31,22 @@ Notes are saved to `~/.config/notse/notes_history.json`.
 
 ## How it works
 
-Notse is a headless TUI built with [Bubble Tea](https://github.com/charmbracelet/bubbletea). It loads your notes on startup, lets you create, edit, pin, and delete them, and writes everything back to a local JSON file.
+Notse is a headless TUI built with [Bubble
+Tea](https://github.com/charmbracelet/bubbletea). It loads your notes on
+startup, lets you create, edit, pin, and delete them, and writes everything
+back to a local JSON file.
 
 ## Controls
 
-| Key | Action |
-|-----|--------|
-| `j/k` or `↑/↓` | Navigate |
-| `enter` | View note |
-| `n` | New note |
-| `e` | Edit note |
-| `d` | Delete note |
-| `p` | Pin/unpin |
-| `tab` | Switch field |
-| `ctrl+s` | Save |
-| `esc` | Back |
-| `q` / `ctrl+c` | Quit |
+| Key            | Action       |
+| -------------- | ------------ |
+| `j/k` or `↑/↓` | Navigate     |
+| `enter`        | View note    |
+| `n`            | New note     |
+| `e`            | Edit note    |
+| `d`            | Delete note  |
+| `p`            | Pin/unpin    |
+| `tab`          | Switch field |
+| `ctrl+s`       | Save         |
+| `esc`          | Back         |
+| `q` / `ctrl+c` | Quit         |
