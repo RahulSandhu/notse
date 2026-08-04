@@ -13,6 +13,7 @@ type Note struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	IsPinned  bool      `json:"is_pinned"`
+	Status    string    `json:"status"`
 	Tags      []string  `json:"tags,omitempty"`
 }
 
@@ -31,6 +32,7 @@ func NewNote(title, content string) Note {
 		CreatedAt: now,
 		UpdatedAt: now,
 		IsPinned:  false,
+		Status:    "pending",
 		Tags:      []string{},
 	}
 }

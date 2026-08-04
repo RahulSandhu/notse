@@ -12,14 +12,42 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+var (
+	accentColor = lipgloss.Color("#6f4cbc")
+	mutedColor  = lipgloss.Color("#888888")
+)
+
+// statusIcon returns the unicode icon for a note status
+func statusIcon(status string) string {
+	switch status {
+	case "done":
+		return "✓"
+	case "missed":
+		return "✗"
+	default:
+		return "○"
+	}
+}
+
+// nextStatus cycles through pending -> done -> missed -> pending
+func nextStatus(status string) string {
+	switch status {
+	case "pending":
+		return "done"
+	case "done":
+		return "missed"
+	default:
+		return "pending"
+	}
+}
+
 // Model represents the TUI state
 type Model struct {
 	notes         []app.Note
 	storage       *storage.Storage
 	cursor        int
-	selected      map[int]struct{}
 	mode          string // "list", "view", "create", "edit"
-	err           error
+	width         int
 	titleInput    textinput.Model
 	contentArea   textarea.Model
 	focusIndex    int    // 0 for title, 1 for content
@@ -48,8 +76,8 @@ func NewModel(storage *storage.Storage) Model {
 		notes:         notes,
 		storage:       storage,
 		cursor:        0,
-		selected:      make(map[int]struct{}),
 		mode:          "list",
+		width:         80,
 		titleInput:    ti,
 		contentArea:   ta,
 		focusIndex:    0,
@@ -65,6 +93,14 @@ func (m Model) Init() tea.Cmd {
 // Update handles messages and updates model state
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
+
+	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		m.width = msg.Width
+		m.contentArea.SetWidth(msg.Width - 10)
+		m.contentArea.SetHeight(msg.Height - 12)
+		return m, nil
+	}
 
 	// Handle create/edit mode separately
 	if m.mode == "create" || m.mode == "edit" {
@@ -107,6 +143,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.titleInput.SetValue(note.Title)
 				m.contentArea.SetValue(note.Content)
 				m.titleInput.Focus()
+			}
+
+		case "s":
+			if m.mode == "view" && len(m.notes) > 0 {
+				// Cycle note status
+				note := m.notes[m.cursor]
+				note.Status = nextStatus(note.Status)
+				m.storage.Update(note.ID, note)
+				m.notes, _ = m.storage.Load()
 			}
 
 		case "n":
@@ -235,96 +280,131 @@ func (m Model) View() string {
 
 // renderListView shows the list of notes
 func (m Model) renderListView() string {
-	titleStyle := lipgloss.NewStyle().
+	headerStyle := lipgloss.NewStyle().
 		Bold(true).
-		Foreground(lipgloss.Color("#7D56F4")).
-		PaddingLeft(2)
+		Foreground(lipgloss.Color("#FFFFFF")).
+		Background(accentColor).
+		Padding(0, 1)
 
-	title := titleStyle.Render("📝 Notes")
+	selectedBar := "│"
+	selectedBarStyle := lipgloss.NewStyle().
+		Bold(true).
+		Foreground(lipgloss.Color("#f965ae"))
+
+	selectedTitleStyle := lipgloss.NewStyle().
+		Bold(true).
+		Foreground(lipgloss.Color("#f965ae"))
+
+	selectedMetaStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("#f965ae"))
+
+	metaStyle := lipgloss.NewStyle().
+		Foreground(mutedColor)
+
+	helpStyle := lipgloss.NewStyle().
+		Foreground(mutedColor)
 
 	var sb strings.Builder
-	sb.WriteString(title + "\n\n")
+	sb.WriteString(headerStyle.Render("Notes History") + "\n\n")
 
 	if len(m.notes) == 0 {
 		sb.WriteString("  No notes yet. Press 'n' to create one.\n")
 	}
 
 	for i, note := range m.notes {
-		cursor := " "
-		if m.cursor == i {
-			cursor = ">"
-		}
-
-		pinned := " "
-		if note.IsPinned {
-			pinned = "📌"
-		}
-
+		icon := lipgloss.NewStyle().Foreground(statusColor(note.Status)).Render(statusIcon(note.Status))
 		title := note.Title
 		if title == "" {
 			title = "(untitled)"
 		}
 
-		sb.WriteString(fmt.Sprintf("%s %s %s\n", cursor, pinned, title))
+		if note.IsPinned {
+			title = title + " *"
+		}
+
+		line := fmt.Sprintf("%s %s", icon, title)
+		timestamp := note.CreatedAt.Format("2006-01-02 15:04")
+
+		if m.cursor == i {
+			sb.WriteString(fmt.Sprintf("%s %s\n", selectedBarStyle.Render(selectedBar), selectedTitleStyle.Render(line)))
+			sb.WriteString(fmt.Sprintf("%s %s\n", selectedBarStyle.Render(selectedBar), selectedMetaStyle.Render(timestamp)))
+		} else {
+			sb.WriteString(fmt.Sprintf("  %s\n", line))
+			sb.WriteString(fmt.Sprintf("  %s\n", metaStyle.Render(timestamp)))
+		}
 	}
 
 	sb.WriteString("\n")
-	sb.WriteString("  q: quit | n: new | d: delete | p: pin | enter: view\n")
+	sb.WriteString(helpStyle.Render("q quit • n new • d delete • p pin • enter view") + "\n")
 
 	return sb.String()
+}
+
+// statusColor returns the color for a note status
+func statusColor(status string) lipgloss.Color {
+	switch status {
+	case "done":
+		return lipgloss.Color("#4ADE80")
+	case "missed":
+		return lipgloss.Color("#F87171")
+	default:
+		return lipgloss.Color("#FACC15")
+	}
 }
 
 // renderNoteView shows a single note in detail
 func (m Model) renderNoteView() string {
 	note := m.notes[m.cursor]
 
-	titleStyle := lipgloss.NewStyle().
+	headerStyle := lipgloss.NewStyle().
 		Bold(true).
-		Foreground(lipgloss.Color("#7D56F4"))
+		Foreground(lipgloss.Color("#FFFFFF")).
+		Background(accentColor).
+		Padding(0, 1)
+
+	metaStyle := lipgloss.NewStyle().
+		Foreground(mutedColor)
+
+	statusStyle := lipgloss.NewStyle().
+		Bold(true).
+		Foreground(statusColor(note.Status))
+
+	helpStyle := lipgloss.NewStyle().
+		Foreground(mutedColor)
 
 	var sb strings.Builder
-	sb.WriteString(titleStyle.Render(note.Title) + "\n\n")
+	sb.WriteString(headerStyle.Render(note.Title) + "\n\n")
 	sb.WriteString(note.Content + "\n\n")
-	sb.WriteString(fmt.Sprintf("Created: %s\n", note.CreatedAt.Format("2006-01-02 15:04")))
+	sb.WriteString("Status: " + statusStyle.Render(fmt.Sprintf("%s %s", statusIcon(note.Status), note.Status)) + "\n")
+	sb.WriteString(metaStyle.Render(fmt.Sprintf("Created: %s", note.CreatedAt.Format("2006-01-02 15:04"))) + "\n")
 	sb.WriteString("\n")
-	sb.WriteString("e: edit | esc: back | q: quit\n")
+	sb.WriteString(helpStyle.Render("s status • e edit • esc back • q quit") + "\n")
 
 	return sb.String()
 }
 
 // renderEditView shows the note creation/edit form
 func (m Model) renderEditView() string {
-	titleStyle := lipgloss.NewStyle().
+	headerStyle := lipgloss.NewStyle().
 		Bold(true).
-		Foreground(lipgloss.Color("#7D56F4")).
-		PaddingLeft(2)
-
-	labelStyle := lipgloss.NewStyle().
-		Foreground(lipgloss.Color("#888888"))
+		Foreground(lipgloss.Color("#FFFFFF")).
+		Background(accentColor).
+		Padding(0, 1)
 
 	helpStyle := lipgloss.NewStyle().
-		Foreground(lipgloss.Color("#666666")).
-		Italic(true)
+		Foreground(mutedColor)
 
 	var sb strings.Builder
 
-	// Different title based on mode
 	if m.mode == "edit" {
-		sb.WriteString(titleStyle.Render("✏️  Edit Note") + "\n\n")
+		sb.WriteString(headerStyle.Render("Edit Note") + "\n\n")
 	} else {
-		sb.WriteString(titleStyle.Render("✏️  Create New Note") + "\n\n")
+		sb.WriteString(headerStyle.Render("Create New Note") + "\n\n")
 	}
 
-	// Title input
-	sb.WriteString(labelStyle.Render("Title:") + "\n")
 	sb.WriteString(m.titleInput.View() + "\n\n")
-
-	// Content area
-	sb.WriteString(labelStyle.Render("Content:") + "\n")
 	sb.WriteString(m.contentArea.View() + "\n\n")
-
-	// Help text
-	sb.WriteString(helpStyle.Render("tab: switch fields | ctrl+s: save | esc: cancel") + "\n")
+	sb.WriteString(helpStyle.Render("tab switch fields • ctrl+s save • esc cancel") + "\n")
 
 	return sb.String()
 }

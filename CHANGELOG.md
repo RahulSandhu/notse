@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.2.0] - 2026-08-04
+
+### Added
+
+- Note status tracking with three states: `pending`, `done`, `missed`.
+- Colored status icons in the notes list.
+- Press `s` in view mode to cycle status.
+
+### Changed
+
+- Redesigned list and edit views with a clipse-inspired layout.
+- Header and labels now use `#6f4cbc`; selected items use `#f965ae`.
+- Demo in README is now a GIF.
+
 ## [0.1.0] - 2026-08-04
 
 ### Added
