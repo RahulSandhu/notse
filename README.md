@@ -38,8 +38,6 @@ Tea](https://github.com/charmbracelet/bubbletea). It loads your notes on
 startup, lets you create, edit, pin, and delete them, and writes everything
 back to a local JSON file.
 
-## Controls
-
 | Key            | Action       |
 | -------------- | ------------ |
 | `j/k` or `↑/↓` | Navigate     |
