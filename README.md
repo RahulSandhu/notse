@@ -2,7 +2,9 @@
 
 Notse is a terminal-based notes app. It runs as a TUI in your terminal.
 
-![demo](images/demo.png)
+<p align="center">
+  <img src="images/demo.png" width="600" alt="demo">
+</p>
 
 ## Installation
 
