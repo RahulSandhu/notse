@@ -1,12 +1,13 @@
 # notse
 
-Notse is a terminal-based notes app. It runs as a TUI in your terminal.
+notse is a terminal-based notes app. It runs as a TUI inside your terminal and
+stores notes in a local JSON file.
 
 <p align="center">
   <img src="images/demo.gif" width="600" alt="demo">
 </p>
 
-## Installation
+## Setup
 
 ### Requirements
 
@@ -14,8 +15,8 @@ Notse is a terminal-based notes app. It runs as a TUI in your terminal.
 
 ### Pre-built
 
-Download the latest binary from the [releases
-page](https://github.com/RahulSandhu/notse/releases).
+Download the latest binary from the
+[releases page](https://github.com/RahulSandhu/notse/releases).
 
 ### Build from source
 
@@ -25,18 +26,17 @@ cd notse
 make install
 ```
 
-## Usage
+## Configuration
 
-Run `notse` from your terminal.
+Run `notse` from your terminal:
+
+```sh
+notse
+```
 
 Notes are saved to `~/.config/notse/notes_history.json`.
 
-## How it works
-
-Notse is a headless TUI built with [Bubble
-Tea](https://github.com/charmbracelet/bubbletea). It loads your notes on
-startup, lets you create, edit, pin, and delete them, and writes everything
-back to a local JSON file.
+### Keybindings
 
 | Key            | Action              |
 | -------------- | ------------------- |
@@ -51,3 +51,12 @@ back to a local JSON file.
 | `ctrl+s`       | Save                |
 | `esc`          | Back                |
 | `q` / `ctrl+c` | Quit                |
+
+notse is a headless TUI built with [Bubble
+Tea](https://github.com/charmbracelet/bubbletea). It loads your notes on
+startup, lets you create, edit, pin, and delete them, and writes everything
+back to a local JSON file.
+
+## Acknowledgements
+
+Built with [Bubble Tea](https://github.com/charmbracelet/bubbletea) by Charm.

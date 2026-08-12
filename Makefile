@@ -1,7 +1,9 @@
-.PHONY: build run clean install
+.PHONY: all build run clean install
 
 BINARY_NAME=notse
 MAIN_PATH=./cmd/notse
+
+all: build install
 
 build:
 	mkdir -p build

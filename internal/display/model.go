@@ -13,8 +13,10 @@ import (
 )
 
 var (
-	accentColor = lipgloss.Color("#6f4cbc")
-	mutedColor  = lipgloss.Color("#888888")
+	accentColor  = lipgloss.Color("#b8d9ae")
+	mutedColor   = lipgloss.Color("#6e6e70")
+	textOnAccent = lipgloss.Color("#000000")
+	selectedColor = lipgloss.Color("#445c3d")
 )
 
 // statusIcon returns the unicode icon for a note status
@@ -282,21 +284,21 @@ func (m Model) View() string {
 func (m Model) renderListView() string {
 	headerStyle := lipgloss.NewStyle().
 		Bold(true).
-		Foreground(lipgloss.Color("#FFFFFF")).
+		Foreground(textOnAccent).
 		Background(accentColor).
 		Padding(0, 1)
 
 	selectedBar := "│"
 	selectedBarStyle := lipgloss.NewStyle().
 		Bold(true).
-		Foreground(lipgloss.Color("#f965ae"))
+		Foreground(selectedColor)
 
 	selectedTitleStyle := lipgloss.NewStyle().
 		Bold(true).
-		Foreground(lipgloss.Color("#f965ae"))
+		Foreground(selectedColor)
 
 	selectedMetaStyle := lipgloss.NewStyle().
-		Foreground(lipgloss.Color("#f965ae"))
+		Foreground(selectedColor)
 
 	metaStyle := lipgloss.NewStyle().
 		Foreground(mutedColor)
@@ -344,11 +346,11 @@ func (m Model) renderListView() string {
 func statusColor(status string) lipgloss.Color {
 	switch status {
 	case "done":
-		return lipgloss.Color("#4ADE80")
+		return lipgloss.Color("#b8d9ae")
 	case "missed":
-		return lipgloss.Color("#F87171")
+		return lipgloss.Color("#e0e0e0")
 	default:
-		return lipgloss.Color("#FACC15")
+		return lipgloss.Color("#6e6e70")
 	}
 }
 
@@ -358,7 +360,7 @@ func (m Model) renderNoteView() string {
 
 	headerStyle := lipgloss.NewStyle().
 		Bold(true).
-		Foreground(lipgloss.Color("#FFFFFF")).
+		Foreground(textOnAccent).
 		Background(accentColor).
 		Padding(0, 1)
 
@@ -387,7 +389,7 @@ func (m Model) renderNoteView() string {
 func (m Model) renderEditView() string {
 	headerStyle := lipgloss.NewStyle().
 		Bold(true).
-		Foreground(lipgloss.Color("#FFFFFF")).
+		Foreground(textOnAccent).
 		Background(accentColor).
 		Padding(0, 1)
 

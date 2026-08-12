@@ -4,7 +4,7 @@
 
 ### Added
 
-- Note status tracking with three states: `pending`, `done`, `missed`.
+- Note status tracking with three states: `pending`, `done`, and `missed`.
 - Colored status icons in the notes list.
 - Press `s` in view mode to cycle status.
 
@@ -18,7 +18,7 @@
 
 ### Added
 
-- Initial release of `notse`.
+- Initial release of notse.
 - TUI for managing notes in the terminal.
 - Create, edit, view, delete, and pin notes.
 - JSON file storage at `~/.config/notse/notes_history.json`.
