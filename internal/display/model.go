@@ -132,6 +132,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 		case "esc":
+			if m.mode == "list" {
+				return m, tea.Quit
+			}
 			// Return to list view
 			m.mode = "list"
 
