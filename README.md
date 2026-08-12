@@ -51,12 +51,3 @@ Notes are saved to `~/.config/notse/notes_history.json`.
 | `ctrl+s`       | Save                |
 | `esc`          | Back                |
 | `q` / `ctrl+c` | Quit                |
-
-notse is a headless TUI built with [Bubble
-Tea](https://github.com/charmbracelet/bubbletea). It loads your notes on
-startup, lets you create, edit, pin, and delete them, and writes everything
-back to a local JSON file.
-
-## Acknowledgements
-
-Built with [Bubble Tea](https://github.com/charmbracelet/bubbletea) by Charm.
