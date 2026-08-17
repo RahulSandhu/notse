@@ -36,6 +36,13 @@ func run() error {
 		return fmt.Errorf("failed to load config: %w", err)
 	}
 
+	// Load theme
+	theme, err := config.LoadTheme(cfg.ThemeFile)
+	if err != nil {
+		return fmt.Errorf("failed to load theme: %w", err)
+	}
+	display.SetTheme(theme)
+
 	// Initialize storage
 	store, err := storage.NewStorage(cfg.NotesFile)
 	if err != nil {

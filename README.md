@@ -36,18 +36,23 @@ notse
 
 Notes are saved to `~/.config/notse/notes_history.json`.
 
+A `theme.json` file in the same directory lets you customize colors (see the
+`internal/config/config.go` `Theme` struct for available fields).
+
 ### Keybindings
 
-| Key            | Action              |
-| -------------- | ------------------- |
-| `j/k` or `↑/↓` | Navigate            |
-| `enter`        | View note           |
-| `n`            | New note            |
-| `e`            | Edit note           |
-| `s`            | Cycle status (view) |
-| `d`            | Delete note         |
-| `p`            | Pin/unpin           |
-| `tab`          | Switch field        |
-| `ctrl+s`       | Save                |
-| `esc`          | Back                |
-| `q` / `ctrl+c` | Quit                |
+| Key               | Action                 |
+| ----------------- | ---------------------- |
+| `j/k` or `↑/↓`   | Navigate within page   |
+| `h/l` or `←/→`   | Change page            |
+| `enter`           | View note              |
+| `n`               | New note               |
+| `e`               | Edit note              |
+| `s`               | Cycle status (view)    |
+| `backspace`       | Delete note            |
+| `p`               | Pin/unpin              |
+| `?`               | Toggle keybindings help|
+| `tab`             | Switch field (edit)    |
+| `ctrl+s`          | Save (edit)            |
+| `esc`             | Back / quit            |
+| `q` / `ctrl+c`    | Force quit             |

@@ -1,25 +1,20 @@
 # Changelog
 
-## [0.2.0] - 2026-08-04
+## v0.3.0
 
-### Added
-
-- Note status tracking with three states: `pending`, `done`, and `missed`.
-- Colored status icons in the notes list.
-- Press `s` in view mode to cycle status.
+### Features
+- Added pagination: 6 notes per page with `h/l` navigation and a dot page indicator
+- Added `?` more/less keybindings help toggle in list mode
+- Added full `theme.json` support with clipse-compatible fields
+- Added Nerd Font pin icon (`  `) on pinned notes
 
 ### Changed
+- Redesigned bottom bars to match clipse-style icon keybindings
+- Changed delete keybinding from `d` to `backspace`
+- Changed view-mode back indicator from `←` to `esc`
+- Selected timestamp now renders in the selected color, matching clipse
 
-- Redesigned list and edit views with a clipse-inspired layout.
-- Header and labels now use `#6f4cbc`; selected items use `#f965ae`.
-- Demo in README is now a GIF.
-
-## [0.1.0] - 2026-08-04
-
-### Added
-
-- Initial release of notse.
-- TUI for managing notes in the terminal.
-- Create, edit, view, delete, and pin notes.
-- JSON file storage at `~/.config/notse/notes_history.json`.
-- Keyboard-driven navigation with Bubble Tea.
+### Fixed
+- Title bar alignment and padding across list, view, and edit modes
+- Pin icon positioning moved to the timestamp line
+- Theme color mapping aligned with clipse `custom_theme.json` defaults

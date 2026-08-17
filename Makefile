@@ -1,19 +1,19 @@
-.PHONY: all build run clean install
+.PHONY: all clean build install run
 
 BINARY_NAME=notse
 MAIN_PATH=./cmd/notse
 
-all: build install
+all: clean build install
+
+clean:
+	rm -rf build/
 
 build:
 	mkdir -p build
 	go build -o build/$(BINARY_NAME) $(MAIN_PATH)
 
-run:
-	go run $(MAIN_PATH)
-
-clean:
-	rm -rf build/
-
 install:
 	go install $(MAIN_PATH)
+
+run:
+	go run $(MAIN_PATH)
