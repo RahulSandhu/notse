@@ -15,8 +15,8 @@ stores notes in a local JSON file.
 
 ### Pre-built
 
-Download the latest binary from the
-[releases page](https://github.com/RahulSandhu/notse/releases).
+Download the latest binary from the [releases
+page](https://github.com/RahulSandhu/notse/releases).
 
 ### Build from source
 
@@ -26,7 +26,7 @@ cd notse
 make install
 ```
 
-## Configuration
+## Usage
 
 Run `notse` from your terminal:
 
@@ -41,18 +41,22 @@ A `theme.json` file in the same directory lets you customize colors (see the
 
 ### Keybindings
 
-| Key               | Action                 |
-| ----------------- | ---------------------- |
-| `j/k` or `↑/↓`   | Navigate within page   |
-| `h/l` or `←/→`   | Change page            |
-| `enter`           | View note              |
-| `n`               | New note               |
-| `e`               | Edit note              |
-| `s`               | Cycle status (view)    |
-| `backspace`       | Delete note            |
-| `p`               | Pin/unpin              |
-| `?`               | Toggle keybindings help|
-| `tab`             | Switch field (edit)    |
-| `ctrl+s`          | Save (edit)            |
-| `esc`             | Back / quit            |
-| `q` / `ctrl+c`    | Force quit             |
+<div align="center">
+
+| Key            | Action                  |
+| -------------- | ----------------------- |
+| `j/k` or `↑/↓` | Navigate within page    |
+| `h/l` or `←/→` | Change page             |
+| `enter`        | View note               |
+| `n`            | New note                |
+| `e`            | Edit note               |
+| `s`            | Cycle status (view)     |
+| `backspace`    | Delete note             |
+| `p`            | Pin/unpin               |
+| `?`            | Toggle keybindings help |
+| `tab`          | Switch field (edit)     |
+| `ctrl+s`       | Save (edit)             |
+| `esc`          | Back / quit             |
+| `q` / `ctrl+c` | Force quit              |
+
+</div>
