@@ -41,8 +41,6 @@ A `theme.json` file in the same directory lets you customize colors (see the
 
 ### Keybindings
 
-<div align="center">
-
 | Key            | Action                  |
 | -------------- | ----------------------- |
 | `j/k` or `↑/↓` | Navigate within page    |
@@ -58,5 +56,3 @@ A `theme.json` file in the same directory lets you customize colors (see the
 | `ctrl+s`       | Save (edit)             |
 | `esc`          | Back / quit             |
 | `q` / `ctrl+c` | Force quit              |
-
-</div>
