@@ -3,6 +3,7 @@ package display
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/RahulSandhu/notse/internal/app"
 	"github.com/RahulSandhu/notse/internal/config"
@@ -23,15 +24,15 @@ func SetTheme(t *config.Theme) {
 	theme = t
 }
 
-func accentColor() lipgloss.Color           { return lipgloss.Color(theme.Accent) }
-func mutedColor() lipgloss.Color            { return lipgloss.Color(theme.Muted) }
-func textOnAccent() lipgloss.Color          { return lipgloss.Color(theme.TextOnAccent) }
-func selectedColor() lipgloss.Color         { return lipgloss.Color(theme.Selected) }
-func titleInfoColor() lipgloss.Color        { return lipgloss.Color(theme.TitleInfo) }
-func normalTitleColor() lipgloss.Color      { return lipgloss.Color(theme.NormalTitle) }
-func pinIndicatorColor() lipgloss.Color     { return lipgloss.Color(theme.PinIndicatorColor) }
-func helpKeyColor() lipgloss.Color          { return lipgloss.Color(theme.HelpKey) }
-func pageActiveDotColor() lipgloss.Color    { return lipgloss.Color(theme.PageActiveDot) }
+func accentColor() lipgloss.Color        { return lipgloss.Color(theme.Accent) }
+func mutedColor() lipgloss.Color         { return lipgloss.Color(theme.Muted) }
+func textOnAccent() lipgloss.Color       { return lipgloss.Color(theme.TextOnAccent) }
+func selectedColor() lipgloss.Color      { return lipgloss.Color(theme.Selected) }
+func titleInfoColor() lipgloss.Color     { return lipgloss.Color(theme.TitleInfo) }
+func normalTitleColor() lipgloss.Color   { return lipgloss.Color(theme.NormalTitle) }
+func pinIndicatorColor() lipgloss.Color  { return lipgloss.Color(theme.PinIndicatorColor) }
+func helpKeyColor() lipgloss.Color       { return lipgloss.Color(theme.HelpKey) }
+func pageActiveDotColor() lipgloss.Color { return lipgloss.Color(theme.PageActiveDot) }
 
 const (
 	pageSize      = 6
@@ -43,6 +44,8 @@ const (
 	editChar      = "✎"
 	backChar      = "esc"
 )
+
+const statusFlashDuration = time.Second
 
 func helpKeyStyle() lipgloss.Style {
 	return lipgloss.NewStyle().Bold(true).Foreground(helpKeyColor())
@@ -99,6 +102,44 @@ func (m *Model) pageEnd() int {
 	return end
 }
 
+// flashStatus sets the action flash and schedules its expiry.
+func (m *Model) flashStatus(msg string) tea.Cmd {
+	m.statusMsg = msg
+	m.statusMsgID++
+	id := m.statusMsgID
+	return tea.Tick(statusFlashDuration, func(time.Time) tea.Msg {
+		return statusClearMsg(id)
+	})
+}
+
+// noteLabel returns a display title, falling back for untitled notes.
+func noteLabel(title string) string {
+	if title == "" {
+		return "(untitled)"
+	}
+	return title
+}
+
+// truncateWithEllipsis trims s to fit within max display columns,
+// appending an ellipsis when it is truncated.
+func truncateWithEllipsis(s string, max int) string {
+	if max <= 0 || s == "" {
+		return ""
+	}
+	if lipgloss.Width(s) <= max {
+		return s
+	}
+	const ellipsis = "…"
+	var b strings.Builder
+	for _, r := range s {
+		if lipgloss.Width(b.String()+string(r))+lipgloss.Width(ellipsis) > max {
+			break
+		}
+		b.WriteRune(r)
+	}
+	return b.String() + ellipsis
+}
+
 func (m *Model) clampCursor() {
 	if m.cursor < 0 {
 		m.cursor = 0
@@ -137,7 +178,12 @@ type Model struct {
 	editingNoteID string // ID of note being edited
 	page          int    // current page index for paginated list
 	showHelp      bool   // expanded help visible in list mode
+	statusMsg     string // transient action flash shown beside the header title
+	statusMsgID   int    // increments per flash; stale clear ticks are ignored
 }
+
+// statusClearMsg expires the current action flash when its ID matches.
+type statusClearMsg int
 
 // NewModel creates a new TUI model
 func NewModel(storage *storage.Storage) Model {
@@ -187,6 +233,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.contentArea.SetWidth(msg.Width - 10)
 		m.contentArea.SetHeight(msg.Height - 12)
 		return m, nil
+
+	case statusClearMsg:
+		if int(msg) == m.statusMsgID {
+			m.statusMsg = ""
+		}
+		return m, nil
 	}
 
 	// Handle create/edit mode separately
@@ -229,6 +281,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.mode == "list" && len(m.notes) > 0 {
 				// View the selected note
 				m.mode = "view"
+				m.statusMsg = ""
 			}
 
 		case "esc":
@@ -238,6 +291,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			// Return to list view
 			m.mode = "list"
 			m.showHelp = false
+			m.statusMsg = ""
 
 		case "e":
 			if m.mode == "view" && len(m.notes) > 0 {
@@ -249,6 +303,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.titleInput.SetValue(note.Title)
 				m.contentArea.SetValue(note.Content)
 				m.titleInput.Focus()
+				m.statusMsg = ""
 			}
 
 		case "s":
@@ -258,6 +313,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				note.Status = nextStatus(note.Status)
 				m.storage.Update(note.ID, note)
 				m.notes, _ = m.storage.Load()
+				cmd = m.flashStatus("Status: " + note.Status)
 			}
 
 		case "n":
@@ -269,15 +325,17 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.titleInput.SetValue("")
 				m.contentArea.SetValue("")
 				m.titleInput.Focus()
+				m.statusMsg = ""
 			}
 
 		case "backspace":
 			if m.mode == "list" && len(m.notes) > 0 {
 				// Delete selected note
-				noteID := m.notes[m.cursor].ID
-				m.storage.Delete(noteID)
+				note := m.notes[m.cursor]
+				m.storage.Delete(note.ID)
 				m.notes, _ = m.storage.Load()
 				m.clampCursor()
+				cmd = m.flashStatus("Deleted: " + noteLabel(note.Title))
 			}
 
 		case "p":
@@ -287,6 +345,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				note.IsPinned = !note.IsPinned
 				m.storage.Update(note.ID, note)
 				m.notes, _ = m.storage.Load()
+				verb := "Pinned"
+				if !note.IsPinned {
+					verb = "Unpinned"
+				}
+				cmd = m.flashStatus(verb + ": " + noteLabel(note.Title))
 			}
 		}
 	}
@@ -329,8 +392,10 @@ func (m Model) updateEditMode(msg tea.Msg) (tea.Model, tea.Cmd) {
 			content := m.contentArea.Value()
 
 			if title != "" || content != "" {
+				verb := "Created"
 				if m.mode == "edit" && m.editingNoteID != "" {
 					// Update existing note
+					verb = "Updated"
 					for _, note := range m.notes {
 						if note.ID == m.editingNoteID {
 							note.Title = title
@@ -347,6 +412,7 @@ func (m Model) updateEditMode(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.notes, _ = m.storage.Load()
 				m.mode = "list"
 				m.editingNoteID = ""
+				return m, m.flashStatus(verb + ": " + noteLabel(title))
 			}
 			return m, nil
 		}
@@ -414,7 +480,7 @@ func (m Model) renderListView() string {
 		Foreground(pinIndicatorColor())
 
 	var sb strings.Builder
-	sb.WriteString(contentPadding.Render(headerStyle.Render("Notes History")) + "\n\n")
+	sb.WriteString(m.attachStatusFlash(contentPadding.Render(headerStyle.Render("Notes History"))) + "\n\n")
 	sb.WriteString(contentPadding.Render(countStyle.Render(m.noteCountLabel())) + "\n\n")
 
 	if len(m.notes) == 0 {
@@ -467,6 +533,19 @@ func (m Model) renderListView() string {
 	}
 
 	return sb.String()
+}
+
+// attachStatusFlash appends the active action flash to a rendered header pill.
+func (m Model) attachStatusFlash(pill string) string {
+	if m.statusMsg == "" {
+		return pill
+	}
+	budget := m.width - lipgloss.Width(pill) - 4
+	if budget <= 0 {
+		return pill
+	}
+	flashStyle := lipgloss.NewStyle().Foreground(accentColor())
+	return lipgloss.JoinHorizontal(lipgloss.Left, pill, "  ", flashStyle.Render(truncateWithEllipsis(m.statusMsg, budget)))
 }
 
 func (m Model) noteCountLabel() string {
@@ -593,12 +672,12 @@ func (m Model) renderNoteView() string {
 		Foreground(statusColor(note.Status))
 
 	var sb strings.Builder
-	sb.WriteString(contentPadding.Render(headerStyle.Render(note.Title)) + "\n\n")
+	sb.WriteString(m.attachStatusFlash(contentPadding.Render(headerStyle.Render(note.Title))) + "\n\n")
 	for _, line := range strings.Split(note.Content, "\n") {
 		sb.WriteString(contentPadding.Render(line) + "\n")
 	}
 	sb.WriteString("\n")
-	sb.WriteString(contentPadding.Render("Status: " + statusStyle.Render(fmt.Sprintf("%s %s", statusIcon(note.Status), note.Status))) + "\n")
+	sb.WriteString(contentPadding.Render("Status: "+statusStyle.Render(fmt.Sprintf("%s %s", statusIcon(note.Status), note.Status))) + "\n")
 	sb.WriteString(contentPadding.Render(metaStyle.Render(fmt.Sprintf("Created: %s", note.CreatedAt.Format("2006-01-02 15:04")))) + "\n")
 	sb.WriteString("\n")
 	sb.WriteString(m.renderViewHelp())

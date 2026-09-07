@@ -36,6 +36,9 @@ notse
 
 Notes are saved to `~/.config/notse/notes_history.json`.
 
+After each action (create, edit, delete, pin/unpin, or status change), a short
+confirmation appears next to the header title and fades after ~1 second.
+
 A `theme.json` file in the same directory lets you customize colors (see the
 `internal/config/config.go` `Theme` struct for available fields).
 
