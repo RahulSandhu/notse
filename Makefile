@@ -1,19 +1,36 @@
-.PHONY: all clean build install run
+BINARY_NAME = notse
+MAIN_PATH   = ./cmd/notse
+BUILD_DIR   = build
 
-BINARY_NAME=notse
-MAIN_PATH=./cmd/notse
+.PHONY: help all clean build install run
 
-all: clean build install
+help:
+	@echo "Available targets:"
+	@echo " make help    - Show available targets"
+	@echo " make all     - Run the full workflow"
+	@echo " make clean   - Remove build artifacts"
+	@echo " make build   - Build the binary"
+	@echo " make install - Install the binary"
+	@echo " make run     - Run the application"
+
+all:
+	@$(MAKE) --no-print-directory clean
+	@$(MAKE) --no-print-directory build
+	@$(MAKE) --no-print-directory install
 
 clean:
-	rm -rf build/
+	@echo "Cleaning build artifacts..."
+	@rm -rf $(BUILD_DIR)/
 
 build:
-	mkdir -p build
-	go build -o build/$(BINARY_NAME) $(MAIN_PATH)
+	@echo "Building binary..."
+	@mkdir -p $(BUILD_DIR)
+	@go build -o $(BUILD_DIR)/$(BINARY_NAME) $(MAIN_PATH)
 
 install:
-	go install $(MAIN_PATH)
+	@echo "Installing binary..."
+	@go install $(MAIN_PATH)
 
 run:
-	go run $(MAIN_PATH)
+	@echo "Running application..."
+	@go run $(MAIN_PATH)
